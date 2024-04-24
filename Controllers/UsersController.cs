@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Any;
+using NuGet.Packaging;
+using System.Reflection.Metadata;
 using TechnicalService.Context;
 using TechnicalService.Models;
 
@@ -10,6 +13,7 @@ namespace TechnicalService.Controllers
     public class UsersController : ControllerBase
     {
         private readonly DataContext _context;
+       
 
         public UsersController(DataContext context)
         {
@@ -24,7 +28,25 @@ namespace TechnicalService.Controllers
             {
                 return NotFound();
             }
+
             return await _context.Users.ToListAsync();
+        }
+
+        [HttpGet("/users-person-role")]
+        public async Task<ActionResult<IEnumerable<UserPersonRole>>> getUserPersonRole()
+        {
+            if (_context.Users == null)
+            {
+                return NotFound();
+            }
+
+            List<UserPersonRole> usersList = await _context.Database.SqlQuery<UserPersonRole>($"Sp_GetUsersPersonRole").ToListAsync();
+
+            if (usersList == null) {
+                return NotFound();
+            }
+
+            return Ok(usersList);
         }
 
         // GET: api/Users/5
